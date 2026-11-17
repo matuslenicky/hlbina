@@ -1,0 +1,6 @@
+blender/test/
+blender/out/
+blender/scenes/
+__pycache__/
+*.blend1
+.impeccable/

@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HLBINA · pramenitá voda zo studne</title>
+<meta name="description" content="HLBINA je pramenitá voda zo studne v kopcoch nad Myjavou, plnená do skla. Koncept webu so zábermi vyrenderovanými v Blenderi.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#eef1f0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23040708'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%23eef1f0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Jost:wght@300;400;500&display=swap">
+<link rel="preload" as="image" href="assets/img/hero-1600.webp" media="(min-aspect-ratio: 4/5)">
+<link rel="preload" as="image" href="assets/img/hero_m-720.webp" media="(max-aspect-ratio: 4/5)">
+<style>
+/* Layout: filmové scény pod sebou. Ráno v kopcoch → tma studne → hladina → svitanie → fľaše v krajine. */
+:root {
+  --paper: #eef1f0;
+  --paper-2: #e3e8e7;
+  --ink: #111617;
+  --mute: #4f5a5c;
+  --line: rgba(17, 22, 23, .16);
+  --deep: #040708;
+  --deep-ink: #e9efee;
+  --deep-mute: #a3b0b1;
+  --f-display: "Italiana", "Cormorant Garamond", Georgia, serif;
+  --f-body: "Jost", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --gut-l: max(20px, env(safe-area-inset-left, 0px));
+  --gut-r: max(20px, env(safe-area-inset-right, 0px));
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-weight: 300; font-size: 17px; line-height: 1.65;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+img, video, canvas { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: var(--gut-l); padding-right: var(--gut-r); }
+.eyebrow {
+  font-size: 12px; font-weight: 400; letter-spacing: .34em; text-transform: uppercase; color: var(--mute);
+}
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--ink); color: var(--paper);
+  padding: 10px 16px; text-decoration: none; font-size: 14px;
+}
+.skip:focus { top: calc(12px + env(safe-area-inset-top, 0px)); }
+
+/* ------------------------------------------------ hlavička */
+.bar {
+  position: fixed; inset: 0 0 auto; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) var(--gut-r) 14px var(--gut-l);
+  color: var(--ink); transition: color 1.2s var(--ease);
+}
+.bar[data-tone="dark"] { color: var(--deep-ink); }
+.mark {
+  font-family: var(--f-display); font-size: 19px; letter-spacing: .42em; text-decoration: none;
+  padding: 12px 0; margin-right: -.42em;
+}
+.bar nav { display: flex; gap: clamp(14px, 3vw, 40px); }
+.bar nav a {
+  font-size: 12px; font-weight: 400; letter-spacing: .26em; text-transform: uppercase; text-decoration: none;
+  padding: 13px 0; position: relative;
+}
+.bar nav a::after {
+  content: ""; position: absolute; left: 0; right: .26em; bottom: 4px; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left; transition: transform 1s var(--ease-out);
+}
+.bar nav a:hover::after, .bar nav a:focus-visible::after { transform: scaleX(1); }
+
+/* ------------------------------------------------ úvod */
+.hero { position: relative; height: 100svh; min-height: 560px; overflow: hidden; background: var(--paper-2); }
+.hero-img, .hero-img img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-img img { object-fit: cover; object-position: 60% 50%; transform-origin: 66% 55%; }
+/* krajina za textom: jemné presvetlenie, aby text ostal čitateľný aj nad tmavšími kopcami */
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(238, 241, 240, .62) 0%, rgba(238, 241, 240, .34) 34%, rgba(238, 241, 240, 0) 58%);
+}
+.hero-copy {
+  position: absolute; z-index: 2; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  padding-left: max(var(--gut-l), 7vw); padding-right: var(--gut-r);
+  display: grid; gap: 22px; max-width: 760px;
+}
+.word {
+  font-size: clamp(64px, 11.5vw, 184px); line-height: .9; letter-spacing: .14em; margin-right: -.14em;
+  display: flex;
+}
+.word span { display: inline-block; }
+.lede { max-width: 32ch; font-size: clamp(17px, 1.35vw, 20px); color: var(--mute); }
+.cue {
+  position: absolute; z-index: 2; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  display: grid; justify-items: center; gap: 12px; text-decoration: none;
+  font-size: 12px; font-weight: 400; letter-spacing: .32em; text-transform: uppercase; color: var(--mute);
+  padding: 8px 12px;
+}
+.cue i { width: 1px; height: 54px; background: linear-gradient(var(--mute), transparent); transform-origin: top; }
+.js .cue i { animation: drip 3.6s var(--ease) infinite; }
+@keyframes drip { 0% { transform: scaleY(0); opacity: 1; } 55% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* filmový nástup */
+.js .hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; background: var(--paper); pointer-events: none;
+  animation: veil 2.8s var(--ease) .15s both;
+}
+@keyframes veil { from { opacity: 1; } to { opacity: 0; } }
+.js .hero-img img { animation: settle 11s var(--ease-out) both; }
+@keyframes settle { from { transform: scale(1.12); } to { transform: scale(1); } }
+.js .word span { animation: rise 2.4s var(--ease-out) both; animation-delay: calc(1.1s + var(--i) * .14s); }
+@keyframes rise {
+  from { opacity: 0; filter: blur(16px); transform: translateY(.18em); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+.js .hero-copy .eyebrow, .js .hero-copy .lede, .js .cue { animation: fade 2.4s var(--ease) both; }
+.js .hero-copy .eyebrow { animation-delay: .8s; }
+.js .hero-copy .lede { animation-delay: 2.2s; }
+.js .cue { animation-delay: 3s; }
+.js .bar { animation: fade 2.4s var(--ease) 2.8s both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ------------------------------------------------ zostup do studne */
+.descent { position: relative; height: 460vh; background: var(--deep); }
+.stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.stage canvas { width: 100%; height: 100%; }
+.stage .veil { position: absolute; inset: 0; background: var(--paper); pointer-events: none; }
+/* titulky v spodnej tretine ako vo filme, pod nimi jemné zatienenie */
+.scrim { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+.scrim.dark { background: linear-gradient(to top, rgba(4, 7, 8, .82) 0%, rgba(4, 7, 8, .5) 28%, rgba(4, 7, 8, 0) 58%); }
+.scrim.light { background: linear-gradient(to top, rgba(238, 241, 240, .9) 0%, rgba(238, 241, 240, .55) 28%, rgba(238, 241, 240, 0) 58%); }
+.cap {
+  position: absolute; left: max(var(--gut-l), 7vw); bottom: 13vh; width: min(84vw, 20ch);
+  font-family: var(--f-display); font-size: clamp(30px, 3.4vw, 52px); line-height: 1.12;
+  color: var(--deep-ink); text-shadow: 0 0 24px rgba(4, 7, 8, .5);
+  opacity: 0; will-change: opacity, transform, filter;
+}
+.cap.on-light { color: var(--ink); text-shadow: 0 0 24px rgba(238, 241, 240, .7); }
+.gauge {
+  position: absolute; right: var(--gut-r); top: 50%; transform: translateY(-50%);
+  display: grid; justify-items: end; gap: 14px; color: var(--deep-ink); opacity: 0;
+}
+.gauge-line { position: relative; width: 1px; height: min(42vh, 360px); background: rgba(233, 239, 238, .28); }
+.gauge-line i {
+  position: absolute; left: -3px; top: 0; width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+  transform: translateY(-50%);
+}
+.gauge output { font-size: 13px; font-weight: 400; letter-spacing: .14em; font-variant-numeric: tabular-nums; }
+.gauge small { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--deep-mute); }
+
+/* ------------------------------------------------ hladina */
+.water { position: relative; height: 100svh; min-height: 520px; background: var(--deep); color: var(--deep-ink); overflow: hidden; display: grid; place-items: center; }
+.water img, .water canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.water canvas { opacity: 0; transition: opacity 2.4s var(--ease); }
+.water canvas.live { opacity: 1; }
+.water::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(4, 7, 8, 0) 30%, rgba(4, 7, 8, .55) 100%);
+}
+.water-copy {
+  position: relative; z-index: 2; text-align: center; display: grid; gap: 26px; justify-items: center;
+  padding: 18vh var(--gut-r) 18vh var(--gut-l);
+}
+.water h2 { font-size: clamp(38px, 5.6vw, 84px); line-height: 1.06; text-shadow: 0 0 40px rgba(4, 7, 8, .7); }
+.water p { max-width: 38ch; color: var(--deep-mute); text-shadow: 0 0 20px rgba(4, 7, 8, .9); }
+.dawn {
+  position: relative; height: 90vh; display: grid; align-content: start; justify-items: center; padding-top: 14vh;
+  background: var(--deep);
+}
+.dawn::after {
+  content: ""; position: absolute; inset: 28% 0 0; pointer-events: none;
+  background: linear-gradient(180deg, var(--deep) 0%, #1a2223 10%, #6f7a7a 48%, #c9d1d0 74%, var(--paper) 100%);
+}
+.dawn p { position: relative; z-index: 1; font-family: var(--f-display); font-size: clamp(26px, 2.8vw, 40px); color: var(--deep-ink); text-align: center; padding: 0 var(--gut-r) 0 var(--gut-l); }
+
+/* ------------------------------------------------ fľaše */
+section.light { padding-block: clamp(90px, 14vw, 180px); }
+.sec-head { display: grid; gap: 18px; margin-bottom: clamp(40px, 6vw, 80px); max-width: 720px; }
+.sec-head h2 { font-size: clamp(40px, 5.4vw, 80px); line-height: 1.04; }
+.frame { margin: 0; overflow: hidden; background: var(--paper-2); }
+.frame img { width: 100%; height: auto; transform-origin: 50% 60%; will-change: transform; }
+.sizes {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: clamp(32px, 6vw, 96px); margin-top: clamp(40px, 6vw, 72px);
+}
+.size { display: grid; gap: 14px; align-content: start; border-top: 1px solid var(--line); padding-top: 26px; min-width: 0; }
+.size h3 { font-size: clamp(44px, 5vw, 68px); line-height: 1; }
+.size p { color: var(--mute); max-width: 34ch; }
+.size dl { display: flex; flex-wrap: wrap; gap: 8px 36px; margin: 6px 0 0; }
+.size dl div { display: grid; gap: 2px; }
+.size dt { font-size: 12px; font-weight: 400; letter-spacing: .28em; text-transform: uppercase; color: var(--mute); }
+.size dd { margin: 0; font-size: 18px; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+/* zábery cez celú obrazovku s textom na voľnej strane obrazu */
+.scene { position: relative; min-height: 100svh; overflow: hidden; display: grid; align-items: center; background: var(--paper-2); }
+.scene .frame { position: absolute; inset: 0; background: none; }
+.scene .frame img { width: 100%; height: 100%; object-fit: cover; }
+.scene-copy { position: relative; z-index: 2; display: grid; gap: 22px; max-width: 540px; padding-left: max(var(--gut-l), 7vw); padding-right: var(--gut-r); }
+.scene-copy h2 { font-size: clamp(38px, 4.6vw, 70px); line-height: 1.04; }
+.scene-copy p:not(.eyebrow) { color: var(--mute); max-width: 36ch; }
+.detail .frame img { object-position: 30% 50%; }
+.scene::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.detail::before { background: linear-gradient(270deg, rgba(227, 232, 231, .78) 0%, rgba(227, 232, 231, .5) 34%, rgba(227, 232, 231, 0) 60%); }
+.dusk::before { background: linear-gradient(90deg, rgba(222, 212, 198, .74) 0%, rgba(222, 212, 198, .44) 34%, rgba(222, 212, 198, 0) 58%); }
+.detail .scene-copy { justify-self: end; padding-left: var(--gut-l); padding-right: max(var(--gut-r), 8vw); }
+.dusk { background: #d9d2c8; }
+.dusk .frame img { object-position: 62% 50%; }
+.dusk .scene-copy p:not(.eyebrow) { color: #3b3632; }
+.dusk .scene-copy .eyebrow { color: #4d4640; }
+
+/* objednávka */
+.order-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(40px, 7vw, 120px); align-items: start; }
+.order-intro { display: grid; gap: 22px; }
+.order-intro h2 { font-size: clamp(40px, 5vw, 76px); line-height: 1.04; }
+.order-intro p:not(.eyebrow) { color: var(--mute); max-width: 38ch; }
+form { display: grid; gap: 22px; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 22px; }
+label { display: grid; gap: 8px; font-size: 12px; font-weight: 400; letter-spacing: .28em; text-transform: uppercase; color: var(--mute); min-width: 0; }
+input, select, textarea {
+  font: inherit; font-size: 17px; letter-spacing: 0; text-transform: none; color: var(--ink);
+  background: transparent; border: 0; border-bottom: 1px solid rgba(17, 22, 23, .42); border-radius: 0;
+  padding: 10px 0 12px; width: 100%; min-width: 0; transition: border-color .8s var(--ease);
+}
+select {
+  appearance: none; padding-right: 28px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%234f5a5c' stroke-width='1.2'/%3E%3C/svg%3E") no-repeat right 4px center;
+}
+textarea { resize: vertical; min-height: 96px; }
+input:focus, select:focus, textarea:focus { outline: none; border-bottom-color: var(--ink); }
+input[aria-invalid="true"] { border-bottom-color: #8a2d22; }
+.send {
+  justify-self: start; font: inherit; font-size: 12px; font-weight: 500; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--paper); background: var(--ink); border: 0; padding: 18px 34px; cursor: pointer;
+  transition: background-color .8s var(--ease), letter-spacing 1.2s var(--ease-out);
+}
+.send:hover { background: #2a3436; letter-spacing: .38em; }
+.form-note { min-height: 1.6em; font-size: 15px; color: var(--mute); }
+.form-note.ok { color: var(--ink); }
+
+footer { border-top: 1px solid var(--line); padding-block: 48px calc(48px + env(safe-area-inset-bottom, 0px)); }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 18px 40px; font-size: 14px; color: var(--mute); }
+.foot .mark { font-size: 22px; color: var(--ink); }
+
+/* pomalé odkrývanie pri scrollovaní (len keď beží JS) */
+.js [data-reveal] { opacity: 0; transform: translateY(28px); filter: blur(8px); transition: opacity 2.2s var(--ease), transform 2.4s var(--ease-out), filter 2.2s var(--ease); transition-delay: var(--d, 0s); }
+.js [data-reveal].in { opacity: 1; transform: none; filter: blur(0); }
+.js [data-reveal="frame"] { transform: none; filter: none; clip-path: inset(6% 6% 6% 6%); transition: opacity 2.6s var(--ease), clip-path 3s var(--ease-out); }
+.js [data-reveal="frame"].in { clip-path: inset(0 0 0 0); }
+
+/* ------------------------------------------------ mobil */
+@media (max-width: 760px) {
+  body { font-size: 16px; }
+  .bar { padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-bottom: 10px; }
+  .mark { font-size: 16px; letter-spacing: .36em; }
+  .bar nav { gap: 16px; }
+  .bar nav a { font-size: 12px; letter-spacing: .16em; }
+  .hero-copy { top: calc(86px + env(safe-area-inset-top, 0px)); transform: none; gap: 14px; padding-left: var(--gut-l); }
+  .word { font-size: 18.5vw; letter-spacing: .1em; margin-right: -.1em; }
+  .lede { font-size: 16px; max-width: 30ch; }
+  .hero-img img { object-position: 50% 100%; transform-origin: 50% 80%; }
+  .hero::before { background: linear-gradient(to bottom, rgba(238, 241, 240, .5) 0%, rgba(238, 241, 240, .25) 32%, rgba(238, 241, 240, 0) 50%); }
+  .cue { display: none; }
+  .gauge { right: var(--gut-r); top: auto; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); transform: none; grid-auto-flow: column; align-items: center; }
+  .gauge-line { display: none; }
+  .cap { left: var(--gut-l); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); width: calc(100% - var(--gut-l) - var(--gut-r)); font-size: 31px; }
+  .scene { align-items: start; }
+  .scene::before {
+    content: ""; position: absolute; inset: 0 0 auto; height: 62%; z-index: 1; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(227, 232, 231, .94) 0%, rgba(227, 232, 231, .78) 45%, rgba(227, 232, 231, 0) 100%);
+  }
+  .dusk::before { background: linear-gradient(to bottom, rgba(214, 207, 200, .94) 0%, rgba(214, 207, 200, .78) 45%, rgba(214, 207, 200, 0) 100%); }
+  .scene-copy, .detail .scene-copy { justify-self: start; padding-top: calc(96px + env(safe-area-inset-top, 0px)); padding-left: var(--gut-l); padding-right: var(--gut-r); gap: 16px; }
+  .scene .frame img, .detail .frame img, .dusk .frame img { object-position: 50% 100%; }
+  .order-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .hero::after, .js .hero-img img, .js .word span, .js .hero-copy .eyebrow, .js .hero-copy .lede, .js .cue, .js .cue i, .js .bar { animation: none; }
+  .js .hero::after { opacity: 0; }
+  .js [data-reveal] { transition-duration: .01s; transition-delay: 0s; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#obsah">Preskočiť na obsah</a>
+
+<header class="bar" data-tone="light">
+  <a class="mark" href="#uvod" aria-label="HLBINA, späť na začiatok">HLBINA</a>
+  <nav aria-label="Hlavná navigácia">
+    <a href="#studna">Studňa</a>
+    <a href="#flase">Fľaše</a>
+    <a href="#objednat">Objednať</a>
+  </nav>
+</header>
+
+<main id="obsah">
+  <section id="uvod" class="hero" data-tone="light">
+    <picture class="hero-img">
+      <source media="(max-aspect-ratio: 4/5)" srcset="assets/img/hero_m-720.webp 720w, assets/img/hero_m-1080.webp 1080w" sizes="100vw">
+      <img src="assets/img/hero-1600.webp" srcset="assets/img/hero-1000.webp 1000w, assets/img/hero-1600.webp 1600w, assets/img/hero-2400.webp 2400w" sizes="100vw" width="2400" height="1350" fetchpriority="high" alt="Sklenená fľaša HLBINA s dubovým uzáverom na kameni nad dolinou, ranné slnko a opar v Myjavskej pahorkatine">
+    </picture>
+    <div class="hero-copy">
+      <h1 class="word" aria-label="HLBINA"><span style="--i:0" aria-hidden="true">H</span><span style="--i:1" aria-hidden="true">L</span><span style="--i:2" aria-hidden="true">B</span><span style="--i:3" aria-hidden="true">I</span><span style="--i:4" aria-hidden="true">N</span><span style="--i:5" aria-hidden="true">A</span></h1>
+      <p class="lede">Pramenitá voda zo studne v kopcoch nad Myjavou. Dlho čakala v tme pod zemou, plníme ju do skla priamo pri studni.</p>
+    </div>
+    <a class="cue" href="#studna"><span>Zostúpte do studne</span><i></i></a>
+  </section>
+
+  <section id="studna" class="descent" aria-label="Zostup do studne">
+    <div class="stage">
+      <canvas id="well" aria-hidden="true"></canvas>
+      <div class="veil" aria-hidden="true"></div>
+      <div class="scrim light" aria-hidden="true"></div>
+      <div class="scrim dark" aria-hidden="true"></div>
+      <div class="gauge" aria-hidden="true">
+        <small>hĺbka</small>
+        <span class="gauge-line"><i></i></span>
+        <output id="depth">0,0 m</output>
+      </div>
+      <p class="cap on-light" data-from="0.05" data-to="0.25">Studňa na kopaniciach nad Myjavou, kváder po kvádri.</p>
+      <p class="cap" data-from="0.31" data-to="0.51">Čím hlbšie, tým väčšie ticho.</p>
+      <p class="cap" data-from="0.57" data-to="0.77">Voda sem presakuje pomaly, cez piesok a štrk.</p>
+      <p class="cap" data-from="0.83" data-to="1.06">Trinásť metrov pod zemou.</p>
+    </div>
+  </section>
+
+  <section id="hladina" class="water" data-tone="dark">
+    <img src="assets/bottom-960.webp" srcset="assets/bottom-600.webp 600w, assets/bottom-960.webp 960w" sizes="100vw" width="960" height="960" loading="lazy" alt="" aria-hidden="true">
+    <canvas id="ripple" aria-hidden="true"></canvas>
+    <div class="water-copy">
+      <h2 data-reveal>Nič nepridávame.<br>Nič neodoberáme.</h2>
+      <p data-reveal style="--d:.5s">Len voda, kameň a čas. Bez bubliniek, bez minerálov navyše, bez úpravy chémiou.</p>
+    </div>
+  </section>
+
+  <div class="dawn" data-tone="dark">
+    <p data-reveal>Potom ju vynesieme na svetlo.</p>
+  </div>
+
+  <section id="flase" class="light" data-tone="light">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-reveal>Fľaše</p>
+        <h2 data-reveal style="--d:.2s">Dve veľkosti, jedno sklo.</h2>
+      </header>
+      <figure class="frame" data-reveal="frame" data-kb>
+        <picture>
+          <source media="(max-aspect-ratio: 4/5)" srcset="assets/img/duo_m-720.webp 720w, assets/img/duo_m-1080.webp 1080w" sizes="100vw">
+          <img src="assets/img/duo-1600.webp" srcset="assets/img/duo-1000.webp 1000w, assets/img/duo-1600.webp 1600w, assets/img/duo-2400.webp 2400w" sizes="(max-width: 1240px) 100vw, 1200px" width="2400" height="1350" loading="lazy" alt="Fľaše HLBINA 0,33 l a 0,75 l vedľa seba na kameni nad dolinou">
+        </picture>
+      </figure>
+      <div class="sizes">
+        <article class="size" data-reveal>
+          <h3>0,75 l</h3>
+          <p>Na stôl pre dvoch až štyroch. Fľaša, ktorá vydrží celú večeru.</p>
+          <dl><div><dt>Výška</dt><dd>28,2 cm</dd></div><div><dt>Priemer</dt><dd>8,0 cm</dd></div></dl>
+        </article>
+        <article class="size" data-reveal style="--d:.3s">
+          <h3>0,33 l</h3>
+          <p>Pre jedného. K obedu, na poradu alebo do tašky.</p>
+          <dl><div><dt>Výška</dt><dd>20,5 cm</dd></div><div><dt>Priemer</dt><dd>6,6 cm</dd></div></dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene detail" data-tone="light" aria-labelledby="detail-h">
+    <figure class="frame" data-kb>
+      <picture>
+        <source media="(max-aspect-ratio: 4/5)" srcset="assets/img/detail_m-720.webp 720w, assets/img/detail_m-1080.webp 1080w" sizes="100vw">
+        <img src="assets/img/detail-1600.webp" srcset="assets/img/detail-1000.webp 1000w, assets/img/detail-1600.webp 1600w, assets/img/detail-2400.webp 2400w" sizes="100vw" width="2400" height="1350" loading="lazy" alt="Spodok fľaše s vypieskovaným pásom kopcov a nápisom HLBINA, za ním skutočné kopce v rannom opare">
+      </picture>
+    </figure>
+    <div class="scene-copy">
+      <p class="eyebrow" data-reveal>Bez etikety</p>
+      <h2 id="detail-h" data-reveal style="--d:.2s">Kopce, odkiaľ voda pochádza, sú vypieskované do skla.</h2>
+      <p data-reveal style="--d:.4s">Dole okolo fľaše obrys Myjavskej pahorkatiny, nad ním meno. Žiadny papier ani lepidlo. Uzáver je z dubového dreva s korkovou vložkou. Prázdnu fľašu nám vrátite, umyjeme ju a naplníme znova.</p>
+    </div>
+  </section>
+
+  <section class="scene dusk" data-tone="light" aria-labelledby="dusk-h">
+    <figure class="frame" data-kb>
+      <picture>
+        <source media="(max-aspect-ratio: 4/5)" srcset="assets/img/dusk_m-720.webp 720w, assets/img/dusk_m-1080.webp 1080w" sizes="100vw">
+        <img src="assets/img/dusk-1600.webp" srcset="assets/img/dusk-1000.webp 1000w, assets/img/dusk-1600.webp 1600w, assets/img/dusk-2400.webp 2400w" sizes="100vw" width="2400" height="1350" loading="lazy" alt="Fľaša HLBINA na kameni v podvečernom slnku nad kopcami">
+      </picture>
+    </figure>
+    <div class="scene-copy">
+      <p class="eyebrow" data-reveal>Pre reštaurácie a hotely</p>
+      <h2 id="dusk-h" data-reveal style="--d:.2s">Na stôl, pri ktorom sa nikto neponáhľa.</h2>
+      <p data-reveal style="--d:.4s">Podnikom vozíme vratné fľaše raz do týždňa. Hosť dostane vodu v skle, vám neostane žiadny plast.</p>
+    </div>
+  </section>
+
+  <section id="objednat" class="light" data-tone="light">
+    <div class="wrap order-grid">
+      <div class="order-intro">
+        <p class="eyebrow" data-reveal>Objednať</p>
+        <h2 data-reveal style="--d:.2s">Prvé plnenie je malé.</h2>
+        <p data-reveal style="--d:.4s">Napíšte, koľko fliaš chcete a kam. Ozveme sa s cenou a termínom rozvozu.</p>
+      </div>
+      <form id="form" novalidate data-reveal style="--d:.3s">
+        <div class="row">
+          <label for="f-name">Meno<input id="f-name" name="meno" autocomplete="name" required></label>
+          <label for="f-mail">E-mail<input id="f-mail" name="email" type="email" autocomplete="email" required></label>
+        </div>
+        <div class="row">
+          <label for="f-kind">Pre koho<select id="f-kind" name="typ">
+            <option>Domácnosť</option>
+            <option>Reštaurácia alebo hotel</option>
+            <option>Kancelária</option>
+          </select></label>
+          <label for="f-count">Počet fliaš za mesiac<input id="f-count" name="pocet" type="number" inputmode="numeric" min="1" step="1" value="12"></label>
+        </div>
+        <label for="f-msg">Správa<textarea id="f-msg" name="sprava" rows="3"></textarea></label>
+        <button class="send" type="submit">Odoslať</button>
+        <p class="form-note" id="form-note" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span class="mark">HLBINA</span>
+    <span>Pramenitá voda zo studne v kopcoch nad Myjavou, plnená do skla.</span>
+    <span>Koncept webu, 2026. Všetky zábery sú vyrenderované v Blenderi.</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  root.classList.add("js");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const vh = () => window.innerHeight;
+
+  /* odkrývanie pri scrollovaní */
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }, { rootMargin: "0px 0px -10% 0px", threshold: 0.01 });
+  document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+
+  /* zostup do studne: snímky z Blendera kreslené podľa scrollu */
+  const sec = document.getElementById("studna");
+  const canvas = document.getElementById("well");
+  const ctx = canvas.getContext("2d");
+  const veil = sec.querySelector(".veil");
+  const gauge = sec.querySelector(".gauge");
+  const dot = sec.querySelector(".gauge-line i");
+  const depthOut = document.getElementById("depth");
+  const caps = [...sec.querySelectorAll(".cap")];
+  const scrimL = sec.querySelector(".scrim.light"), scrimD = sec.querySelector(".scrim.dark");
+  const N = 72;
+  const small = matchMedia("(max-width: 760px)").matches;
+  const dir = small ? "m" : "d";
+  const frames = new Array(N);
+  const src = (i) => `assets/well/${dir}/${String(i + 1).padStart(3, "0")}.webp`;
+  // kamera v Blenderi: z = 2,4 m nad zemou až -12,7 m, rovnaké časovanie ako anims.py
+  const camZ = (t) => { const e = (t * t * (3 - 2 * t)) * 0.75 + t * 0.25; return 2.4 + (-12.7 - 2.4) * e; };
+
+  let loading = false, cur = 0, shownX = -1, dirty = true;
+  function load() {
+    if (loading) return;
+    loading = true;
+    const seen = new Set(), queue = [];
+    for (const step of [N - 1, 8, 4, 2, 1]) for (let i = 0; i < N; i += step) if (!seen.has(i)) { seen.add(i); queue.push(i); }
+    let active = 0;
+    const next = () => {
+      while (active < 6 && queue.length) {
+        const i = queue.shift(); active++;
+        const im = new Image();
+        im.decoding = "async";
+        im.onload = () => { frames[i] = im; active--; if (Math.abs(i - cur) < 16) dirty = true; next(); };
+        im.onerror = () => { active--; next(); };
+        im.src = src(i);
+      }
+    };
+    next();
+  }
+  new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) load(); }, { rootMargin: "150% 0px" }).observe(sec);
+  addEventListener("load", () => setTimeout(load, 600), { once: true });
+
+  function nearest(i) {
+    if (frames[i]) return frames[i];
+    for (let d = 1; d < N; d++) { if (frames[i - d]) return frames[i - d]; if (frames[i + d]) return frames[i + d]; }
+    return null;
+  }
+  function size() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; dirty = true; }
+  }
+  function blit(im) {
+    const cw = canvas.width, ch = canvas.height, s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
+    const w = im.naturalWidth * s, h = im.naturalHeight * s;
+    ctx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
+  }
+  // medzi dvoma snímkami z Blendera sa prelína, takže 72 snímok pôsobí ako plynulý záber
+  function draw(x) {
+    const i0 = Math.floor(x), i1 = Math.min(N - 1, i0 + 1), f = x - i0;
+    const a = frames[i0], b = frames[i1];
+    if (a && b) {
+      blit(a);
+      if (f > 0.002) { ctx.globalAlpha = f; blit(b); ctx.globalAlpha = 1; }
+      shownX = x;
+    } else {
+      const im = nearest(Math.round(x));
+      if (im) blit(im);
+      shownX = -1;
+    }
+  }
+
+  /* hlavička mení farbu podľa scény pod ňou */
+  const bar = document.querySelector(".bar");
+  const toned = [...document.querySelectorAll("[data-tone]:not(.bar)")];
+
+  /* pomalé priblíženie obrázkov (Ken Burns) */
+  const kb = [...document.querySelectorAll("[data-kb] img")].map((img) => ({ img, s: 1.08, y: 0 }));
+  const hero = document.getElementById("uvod");
+  const heroCopy = hero.querySelector(".hero-copy");
+
+  let sp = 0, heroP = 0;
+  function frame() {
+    const H = vh();
+    // zostup
+    const r = sec.getBoundingClientRect();
+    const total = sec.offsetHeight - H;
+    const p = clamp(-r.top / total);
+    sp += (p - sp) * (reduce ? 1 : 0.085);
+    if (Math.abs(p - sp) < 0.0004) sp = p;
+    const near = r.top < H * 1.2 && r.bottom > -H * 0.2;
+    if (near) {
+      size();
+      const x = sp * (N - 1);
+      cur = Math.round(x);
+      if (dirty || Math.abs(x - shownX) > 0.003) { draw(x); dirty = false; }
+      veil.style.opacity = 1 - clamp(sp / 0.05);
+      gauge.style.opacity = clamp((sp - 0.03) / 0.06) * (1 - clamp((sp - 0.97) / 0.03));
+      const depth = Math.max(0, -camZ(sp));
+      depthOut.textContent = depth.toFixed(1).replace(".", ",") + " m";
+      if (dot) dot.style.top = (depth / 12.7 * 100).toFixed(2) + "%";
+      let sl = 0, sd = 0;
+      for (const c of caps) {
+        const a = +c.dataset.from, b = +c.dataset.to;
+        const l = (sp - a) / (b - a);
+        const o = clamp(Math.min(l / 0.28, (1 - l) / 0.28));
+        c.style.opacity = o.toFixed(3);
+        c.style.transform = `translateY(${((1 - o) * (l < 0.5 ? 18 : -18)).toFixed(1)}px)`;
+        c.style.filter = o > 0.99 ? "none" : `blur(${((1 - o) * 7).toFixed(2)}px)`;
+        if (c.classList.contains("on-light")) sl = Math.max(sl, o); else sd = Math.max(sd, o);
+      }
+      scrimL.style.opacity = sl.toFixed(3);
+      scrimD.style.opacity = sd.toFixed(3);
+    }
+    // úvod pomaly odchádza
+    const hr = hero.getBoundingClientRect();
+    const hp = clamp(-hr.top / H);
+    heroP += (hp - heroP) * (reduce ? 1 : 0.1);
+    if (hr.bottom > 0) {
+      heroCopy.style.opacity = (1 - clamp(heroP / 0.6)).toFixed(3);
+      heroCopy.style.translate = `0 ${(-heroP * 60).toFixed(1)}px`;
+    }
+    // obrázky
+    if (!reduce) for (const k of kb) {
+      const b = k.img.getBoundingClientRect();
+      if (b.bottom < -50 || b.top > H + 50) continue;
+      const q = clamp((b.top + b.height / 2) / (H + b.height));
+      const ts = 1 + 0.07 * q, ty = (q - 0.5) * -3;
+      k.s += (ts - k.s) * 0.08; k.y += (ty - k.y) * 0.08;
+      k.img.style.transform = `translateY(${k.y.toFixed(2)}%) scale(${k.s.toFixed(4)})`;
+    }
+    // tón hlavičky
+    let tone = "light";
+    for (const el of toned) {
+      const b = el.getBoundingClientRect();
+      if (b.top <= 40 && b.bottom > 40) { tone = el.dataset.tone; break; }
+    }
+    if (r.top <= 40 && r.bottom > 40) tone = sp < 0.3 ? "light" : "dark";
+    if (bar.dataset.tone !== tone) bar.dataset.tone = tone;
+    requestAnimationFrame(frame);
+  }
+  addEventListener("resize", () => { dirty = true; });
+  requestAnimationFrame(frame);
+
+  /* hladina: posledný záber zo studne a kvapky, ktoré na ňu dopadajú (WebGL) */
+  (() => {
+    const cv = document.getElementById("ripple");
+    const gl = !reduce && cv.getContext("webgl", { antialias: false, alpha: false });
+    if (!gl) return;
+    const vs = "attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}";
+    const fs = `precision highp float;
+      varying vec2 v; uniform sampler2D tex; uniform vec2 k; uniform float t; uniform vec3 drops[4];
+      float h(vec2 q){
+        float s=0.;
+        for(int i=0;i<4;i++){
+          vec3 d=drops[i]; float age=t-d.z;
+          if(age<0.||age>14.) continue;
+          float x=age*.085-distance(q,d.xy);
+          float env=smoothstep(-.006,.012,x)*exp(-x*16.)*exp(-age*.42);
+          s+=sin(x*165.)*env;
+        }
+        return s;
+      }
+      void main(){
+        vec2 uv=(v-.5)*k+.5; float e=.0016;
+        vec2 n=vec2(h(uv+vec2(e,0.))-h(uv-vec2(e,0.)), h(uv+vec2(0.,e))-h(uv-vec2(0.,e)));
+        vec3 c=texture2D(tex,uv+n*.011).rgb;
+        c+=max(0.,n.x*.7+n.y)*.09;
+        gl_FragColor=vec4(c,1.);
+      }`;
+    const sh = (type, code) => { const s = gl.createShader(type); gl.shaderSource(s, code); gl.compileShader(s); return s; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, "p");
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const u = (n) => gl.getUniformLocation(prog, n);
+    const uK = u("k"), uT = u("t"), uD = u("drops");
+    const drops = new Float32Array([0.5, 0.5, -99, 0.5, 0.5, -99, 0.5, 0.5, -99, 0.5, 0.5, -99]);
+    let slot = 0, nextDrop = 0.6, visible = false, t0 = 0, ready = false, raf = 0;
+
+    const img = new Image();
+    img.onload = () => {
+      const tx = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tx);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+      for (const [p, val] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, p, val);
+      ready = true;
+      if (visible) start();
+    };
+    img.src = small ? "assets/bottom-600.webp" : "assets/bottom-960.webp";
+
+    function render(now) {
+      const t = (now - t0) / 1000;
+      if (t > nextDrop) {
+        drops.set([0.5 + (Math.random() - 0.5) * 0.05, 0.5 + (Math.random() - 0.5) * 0.05, t], slot * 3);
+        slot = (slot + 1) % 4;
+        nextDrop = t + 3.2 + Math.random() * 1.6;
+      }
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr);
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
+      const a = w / h;
+      gl.uniform2f(uK, a > 1 ? 1 : a, a > 1 ? 1 / a : 1);
+      gl.uniform1f(uT, t);
+      gl.uniform3fv(uD, drops);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      if (!cv.classList.contains("live")) cv.classList.add("live");
+      raf = visible ? requestAnimationFrame(render) : 0;
+    }
+    function start() { if (!raf && ready) { if (!t0) t0 = performance.now(); raf = requestAnimationFrame(render); } }
+    new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); if (visible) start(); }, { rootMargin: "10% 0px" }).observe(cv);
+  })();
+
+  /* formulár: zatiaľ ukážka, nič neodosiela */
+  const form = document.getElementById("form");
+  const note = document.getElementById("form-note");
+  form.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const name = form.elements.meno, mail = form.elements.email;
+    let bad = null;
+    for (const f of [name, mail]) {
+      const ok = f.value.trim() !== "" && f.checkValidity();
+      f.setAttribute("aria-invalid", ok ? "false" : "true");
+      if (!ok && !bad) bad = f;
+    }
+    note.classList.remove("ok");
+    if (bad) {
+      note.textContent = bad === name ? "Doplňte, prosím, meno." : "Skontrolujte e-mail, chýba v ňom zavináč alebo doména.";
+      bad.focus();
+      return;
+    }
+    note.classList.add("ok");
+    note.textContent = `Ďakujeme, ${name.value.trim().split(" ")[0]}. Toto je zatiaľ ukážka webu, správa sa nikam neodoslala.`;
+  });
+})();
+</script>
+</body>
+</html>
