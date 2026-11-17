@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 $B = "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
 Set-Location $PSScriptRoot
 New-Item -ItemType Directory -Force "out\stills", "out\well" | Out-Null
-$log = "out\rest.log"
+$log = Join-Path $PSScriptRoot "out\rest.log"   # absolútne: na konci sa skript presúva do koreňa projektu kvôli prep.py
 function Say($t) { $line = "{0:HH:mm:ss} {1}" -f (Get-Date), $t; Add-Content -Path $log -Value $line -Encoding utf8; $line }
 
 function WaitForMemory {
